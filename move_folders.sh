@@ -32,6 +32,7 @@ log_info "Ingresando a la carpeta ~/code/${ghuser}"
 cd ~/code/"${ghuser}"
 
 log_info "Vamos a crear una carpeta a donde moveremos el contenido"
+sleep 5
 # crea carpeta con número del batch
 read -p "Ingresa el número de tu batch: " batchnumber
 
