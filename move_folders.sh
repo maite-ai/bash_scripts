@@ -26,19 +26,19 @@ log_warning() {
 
 ghuser=$(gh api user | jq -r '.login')
 
-log_info "Bienvenid@! ${ghuser}"
+log_info "¡Bienvenid@ ${ghuser}!"
 
 log_info "Ingresando a la carpeta ~/code/${ghuser}"
-cd "~/code/${ghuser}"
+cd ~/code/"${ghuser}"
 
 log_info "Vamos a crear la carpeta a donde moveremos el contenido"
 # crea carpeta con número del batch
-echo "Ingresa el número de tu batch"
+echo "Ingresa el número de tu batch: "
 read batchnumber
 
 mkdir "ds-bootcamp-${batchnumber}"
 
-folders = (*)
+folders=(*)
 counter=0
 
 for folder in "${folders[@]}"; do
