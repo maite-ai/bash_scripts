@@ -33,8 +33,7 @@ cd ~/code/"${ghuser}"
 
 log_info "Vamos a crear una carpeta a donde moveremos el contenido"
 # crea carpeta con número del batch
-echo "Ingresa el número de tu batch: "
-read batchnumber
+read -p "Ingresa el número de tu batch: " batchnumber
 
 mkdir "ds-bootcamp-${batchnumber}"
 
