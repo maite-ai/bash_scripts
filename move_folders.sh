@@ -21,7 +21,7 @@ log_error() {
 }
 
 log_warning() {
-  echo -e "${YELLOW}[ERROR]${RESET} $1"
+  echo -e "${YELLOW}[WARNING]${RESET} $1"
 }
 
 ghuser=$(gh api user | jq -r '.login')
