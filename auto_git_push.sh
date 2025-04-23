@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# Config
+GITHUB_USERNAME=$(gh api user | jq -r '.login')
+COMMIT_MESSAGE="Auto-commit: $(date +'%Y-%m-%d %H:%M:%S')"
+
 # Estilos
 BOLD='\e[1m'
 UNDERLINE='\e[4m'
@@ -30,37 +34,58 @@ log_success() {
   echo -e "${GREEN}[SUCCESS] $1${NOCOLOR}"
 }
 
-# Crea una lista con los distintos challenges de la unidad
-folder_name=$(basename "$(pwd)")
-echo -e "${UNDERLINE}Obteniendo lista de challenges de la unidad ${folder_name}${NOCOLOR}"
-challenges=(*)
+# Main functions
+## Encuentra todos los repos de git
+find_git_repos() {
+    find . -type d -name .git -exec dirname {} \;
+}
 
-# Itero sobre la lista
-for challenge in "${challenges[@]}"; do
-  if [ -d "$challenge/.git" ]; then
+## Comitea y pushea cambios en un repo
+process_repo() {
+    local challenge="$1"
     log_info "Procesando challenge (repo Git): ${challenge}"
-    cd "${challenge}" || continue
 
-    if git status --porcelain | grep --quiet ".ipynb"; then
-      log_info "Se encontraron cambios para pushear!"
-      git add *.ipynb
-      git commit -m "Uploading ${folder_name}/${challenge} notebook"
+    cd "$challenge" || return
 
-      push_output=$(git push origin master 2>&1)
-      if git push origin master; then
-        log_success "Subida exitosa del challenge ${challenge} a GitHub"
-      else
-        log_error "Falló la subida debido al siguiente error:"
-        echo "${push_output}"
-      fi
-    else
-      log_info "No hay cambios pendientes en este challenge"
+    # Busca cambios en el repo
+    if [ -z "$(git status --porcelain)" ]; then
+        log_info "No hay cambios pendientes en este challenge"
+        cd - > /dev/null || return
+        return
     fi
-  else
-    log_warning "Saltando: ${challenge} (no es un repo de Git)"
-  fi
-  cd ..
-  echo ""
+
+    log_info "Se encontraron cambios para pushear!"
+    # Sube todos los archivos con cambios, inclusive si no son notebooks
+    git add .
+    # Commit
+    git commit -m "$COMMIT_MESSAGE"
+    push_output=$(git push origin master 2>&1)
+    if git push origin master; then
+      log_success "Subida exitosa del challenge ${challenge} a GitHub"
+    else
+      log_error "Falló la subida debido al siguiente error:"
+      echo "${push_output}"
+    fi
+    cd - > /dev/null || return
+}
+
+# Main
+log_info "Comenzando el proceso de autocommit"
+cd ~/code/$GITHUB_USERNAME
+
+repos=$(find_git_repos)
+
+if [ -z "$repos" ]; then
+    log_warning "No se encontraron challenges"
+    exit 0
+fi
+
+log_info "Challenges a procesar:"
+echo "$repos"
+
+for repo in $repos; do
+    process_repo "$repo"
 done
+
 
 echo -e "${BOLD}===== Proceso completado =====${NOCOLOR}"
