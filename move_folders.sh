@@ -31,10 +31,10 @@ log_info "¡Bienvenid@ ${ghuser}!"
 log_info "Ingresando a la carpeta ~/code/${ghuser}"
 cd ~/code/"${ghuser}"
 
-log_info "Vamos a crear una carpeta a donde moveremos el contenido"
-sleep 5
+log_info "Crearemos una carpeta a donde moveremos el contenido"
 # crea carpeta con número del batch
-read -p "Ingresa el número de tu batch: " batchnumber
+echo "Ingresa el número de tu batch: "
+read batchnumber
 
 mkdir "ds-bootcamp-${batchnumber}"
 

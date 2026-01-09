@@ -19,7 +19,7 @@ log_success() {
 }
 
 # Crear proyecto
-echo "Nombre del proyecto (usa guión bajo en lugar de espacios):"
+echo "Ingresa un nombre para el proyecto (usa guión bajo en lugar de espacios):"
 read project_name
 
 mkdir "$project_name" && cd $_
@@ -29,23 +29,49 @@ log_info "Se creó el proyecto ${project_name}"
 log_info "Inicializando repositorio de Git"
 git init
 
-log_info "Creando directorio y archivos iniciales"
+log_info "\nCreando directorio y archivos iniciales..."
 touch .gitignore
-touch requirements.txt
 echo "data/" >> .gitignore
+touch requirements.txt
+echo "pandas" >> requirements.txt
+echo "customtkinter==5.2.2" >> requirements.txt
+echo "openpyxl==3.1.5" >> requirements.txt
 touch main.py
 
 mkdir views
 touch views/app.py
 
-log_info "Confirmando cambios..."
+log_info "\nConfirmando cambios..."
 git add .
 git commit -m "First commit: project uploaded"
 
-log_info "Creando repositorio en GitHub"
-echo "Describe el propósito de tu proyecto"
+log_info "\nCreando entorno virtual..."
+echo "Ingresa un nombre para el entorno virtual:"
+read env_name
+
+echo "Ingresa la versión de Python:"
+read python_version
+
+if pyenv versions --bare | grep -q "^$project_name$"; then
+  echo "Ingresa un nombre para el entorno virtual:"
+  read env_name
+fi
+
+pyenv virtualenv "$python_version" "$env_name"
+pyenv local "$env_name"
+
+log_success "El entorno ${env_name} ha sido activado"
+
+log_info "\nInstalando librerías y dependencias..."
+python -m pip install --upgrade pip
+pip install -r requirements.txt
+log_success "Librerías y dependencias instaladas"
+
+log_info "\nCreando repositorio en GitHub..."
+echo "Describe el propósito de tu proyecto:"
 read description
 
 gh repo create "$project_name" --public -d "$description" --source . --push
 
-log_success "Proyecto creado y subido exitosamente! 👌"
+echo ""
+log_success "*** Proyecto creado y subido exitosamente! 👌 ***"
